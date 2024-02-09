@@ -15,11 +15,21 @@ options:
   connectlife_password: ""
   log_level: info
   disable_http_api: true
+  mqtt_host: ""
+  mqtt_user: ""
+  mqtt_password: ""
+  mqtt_port: 1883
+  mqtt_ssl: false
 schema:
   connectlife_login: str
   connectlife_password: password
   log_level: list(emergency|alert|critical|error|warning|notice|info|debug)
   disable_http_api: bool
+  mqtt_host: str?
+  mqtt_user: str?
+  mqtt_password: password?
+  mqtt_port: int?
+  mqtt_ssl: bool?
 startup: services
 init: false
 services: ["mqtt:need"]

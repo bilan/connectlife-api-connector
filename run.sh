@@ -18,23 +18,34 @@ else
     export DISABLE_HTTP_API=false
 fi
 
+# mqtt config
+
 if ! [[ -v MQTT_HOST ]]; then
-    export MQTT_HOST=$(bashio::services mqtt "host")
+    export MQTT_HOST=$(bashio::config "mqtt_host")
 fi
 
 if ! [[ -v MQTT_USER ]]; then
-    export MQTT_USER=$(bashio::services mqtt "username")
+    export MQTT_USER=$(bashio::config "mqtt_user")
 fi
 
 if ! [[ -v MQTT_PASSWORD ]]; then
-    export MQTT_PASSWORD=$(bashio::services mqtt "password")
+    export MQTT_PASSWORD=$(bashio::config "mqtt_password")
 fi
 
 if ! [[ -v MQTT_PORT ]]; then
-    export MQTT_PORT=$(bashio::services mqtt "port")
+    export MQTT_PORT=$(bashio::config "mqtt_port")
 fi
 
 if ! [[ -v MQTT_SSL ]]; then
+    export MQTT_SSL=$(bashio::config "mqtt_ssl")
+fi
+
+# Try to get mqtt config from ha if config empty
+if [ -z "$MQTT_HOST" ]; then
+    export MQTT_HOST=$(bashio::services mqtt "host")
+    export MQTT_USER=$(bashio::services mqtt "username")
+    export MQTT_PASSWORD=$(bashio::services mqtt "password")
+    export MQTT_PORT=$(bashio::services mqtt "port")
     export MQTT_SSL=$(bashio::services mqtt "ssl")
 fi
 
