@@ -49,6 +49,8 @@ class ConnectlifeApiService
                 throw new \Exception('Cannot login to Connectlife. Response: ' . json_encode($response->body()));
             }
 
+            $uid = $response['UID'];
+
             $response = Http::throw()->asForm()->post('https://accounts.eu1.gigya.com/accounts.getJWT', [
                 'APIKey' => $apiKey,
                 'gmid' => $gmid,
@@ -61,7 +63,7 @@ class ConnectlifeApiService
                 'response_type' => 'code',
                 'redirect_uri' => 'https://api.connectlife.io/swagger/oauth2-redirect.html',
                 'thirdType' => 'CDC',
-                'thirdClientId' => '06bd3a32a37d49bba4e7589c77bf4fe4',
+                'thirdClientId' => $uid,
             ]);
 
             $response = Http::throw()->asForm()->post('https://oauth.hijuconn.com/oauth/token', [
