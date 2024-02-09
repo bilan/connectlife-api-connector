@@ -1,0 +1,25 @@
+name: Connectlife API proxy / MQTT Add-on
+description: Integrates Connectlife AC devices with Home Assistant via MQTT and provides an HTTP API
+version: 1.0.9
+slug: connectlife-api-proxy-mqtt
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+ports:
+  8000/tcp: 8000
+options:
+  connectlife_login: ""
+  connectlife_password: ""
+  log_level: info
+  disable_http_api: true
+schema:
+  connectlife_login: str
+  connectlife_password: password
+  log_level: list(emergency|alert|critical|error|warning|notice|info|debug)
+  disable_http_api: bool
+startup: services
+init: false
+services: ["mqtt:need"]
