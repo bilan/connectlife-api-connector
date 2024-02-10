@@ -21,9 +21,4 @@ storage/framework/sessions/**
 storage/framework/views/**
 .DS_Store
 
-/caddy
-frankenphp
-frankenphp-worker.php
-rr
-.rr.yaml
 

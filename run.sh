@@ -53,7 +53,7 @@ php artisan app:check-config
 
 if [ -z "$MQTT_HOST" ]; then
     echo "MQTT configuration not found, running HTTP API only."
-    php artisan octane:start --server=roadrunner --host=0.0.0.0 --rpc-port=6001 --port=8000
+    php artisan serve --port=8000 --host=0.0.0.0
 elif [ "$DISABLE_HTTP_API" = "true" ]; then
     echo "HTTP API disabled, running MQTT client only."
     php artisan -vvv app:mqtt-loop

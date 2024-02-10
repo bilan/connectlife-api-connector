@@ -1,5 +1,4 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/base:15.0.6
-FROM ghcr.io/roadrunner-server/roadrunner:2023.3.10 AS roadrunner
 FROM $BUILD_FROM
 
 RUN apk add --no-cache \
@@ -33,7 +32,6 @@ COPY ./ /home/app
 WORKDIR /home/app
 RUN composer install --no-interaction --no-dev --no-suggest
 RUN cp .env.example .env && php artisan key:generate
-COPY --from=roadrunner /usr/bin/rr rr
 RUN chmod a+x run.sh
 
 CMD [ "/home/app/run.sh" ]

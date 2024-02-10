@@ -11,7 +11,15 @@
 ![armv7-shield]
 ![i386-shield]
 
-## Install in Home Assitant with Supervisor
+The app uses [Connectlife API](https://api.connectlife.io/swagger/index.html)
+to control AC devices. It integrates with Home Assistant through
+[MQTT](https://www.home-assistant.io/integrations/climate.mqtt/)
+using [discovery feature](https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery).
+
+Pull requests, bug reports and feature requests are welcomed. You can do it in the
+[issues section](https://github.com/Bilan/connectlife-api-connector/issues).
+
+## Install in Home Assistant with Supervisor
 
 [![ha_badge](https://img.shields.io/badge/Home%20Assistant-Add%20On-blue.svg)](https://www.home-assistant.io/)
 
@@ -50,7 +58,7 @@ docker run -it \
 -e CONNECTLIFE_LOGIN=connectlife-login-email \
 -e CONNECTLIFE_PASSWORD=your-password \
 -e LOG_LEVEL=info \
-ha-connectlife-addon /bin/ash -c 'php /home/app/artisan octane:start --server=roadrunner --host=0.0.0.0 --rpc-port=6001 --port=8000'
+ha-connectlife-addon /bin/ash -c 'php artisan serve --port=8000 --host=0.0.0.0'
 ```
 
 #### MQTT client only
@@ -68,8 +76,9 @@ docker run -it \
 ha-connectlife-addon /bin/ash -c 'php artisan app:mqtt-loop'
 ```
 
-## Useful docs
+## Useful links
 
+-   https://api.connectlife.io/swagger/index.html
 -   https://developers.home-assistant.io/docs/add-ons/testing
 -   https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery
 -   https://www.home-assistant.io/integrations/climate.mqtt/

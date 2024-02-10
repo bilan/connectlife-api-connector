@@ -14,5 +14,5 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return 'ConnectLife API 2';
+    return 'ConnectLife API';
 });
