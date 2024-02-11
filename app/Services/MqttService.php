@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Services\Enum\FanSpeed;
 use App\Services\Enum\Mode;
+use App\Services\Enum\TemperatureUnit;
 use Illuminate\Support\Facades\Log;
 use PhpMqtt\Client\Contracts\MqttClient;
 
@@ -18,6 +19,8 @@ class MqttService
 
     public function setupHaDiscovery()
     {
+        $temperatureUnit = TemperatureUnit::fromName(env('TEMPERATURE_UNIT', 'celsius'));
+
         foreach ($this->connectlifeApiService->devices() as $device) {
             $id = $device['id'];
             Log::info("Publishing discovery msg for device: $id");
@@ -27,32 +30,31 @@ class MqttService
                 continue;
             }
 
-            $this->client->publish(
-                "homeassistant/climate/$id/config",
-                json_encode([
-                    'name' => $device['name'] ?? $id,
-                    'unique_id' => $id,
-                    'modes' => ["fan_only", "heat", "cool", "dry", "auto", "off"],
-                    'fan_modes' => ["Auto", "SuperLow", "Low", "Medium", "High", "SuperHigh"],
-                    'payload_on' => '1',
-                    'payload_off' => '0',
-                    'power_command_topic' => "$id/ac/power/set",
-                    'mode_command_topic' => "$id/ac/mode/set",
-                    'mode_state_topic' => "$id/ac/mode/get",
-                    'temperature_command_topic' => "$id/ac/temperature/set",
-                    'temperature_state_topic' => "$id/ac/temperature/get",
-                    'current_temperature_topic' => "$id/ac/current-temperature/get",
-                    'fan_mode_command_topic' => "$id/ac/fan/set",
-                    'fan_mode_state_topic' => "$id/ac/fan/get",
-                    'precision' => 0.5,
-                    'max_temp' => 32,
-                    'min_temp' => 16,
-                    'temp_step' => 1,
-                    'device' => [
-                        'identifiers' => [$id]
-                    ]
-                ])
-            );
+            $haDiscoveryData = [
+                'name' => $device['name'] ?? $id,
+                'unique_id' => $id,
+                'modes' => ["fan_only", "heat", "cool", "dry", "auto", "off"],
+                'fan_modes' => ["Auto", "SuperLow", "Low", "Medium", "High", "SuperHigh"],
+                'payload_on' => '1',
+                'payload_off' => '0',
+                'power_command_topic' => "$id/ac/power/set",
+                'mode_command_topic' => "$id/ac/mode/set",
+                'mode_state_topic' => "$id/ac/mode/get",
+                'temperature_command_topic' => "$id/ac/temperature/set",
+                'temperature_state_topic' => "$id/ac/temperature/get",
+                'current_temperature_topic' => "$id/ac/current-temperature/get",
+                'fan_mode_command_topic' => "$id/ac/fan/set",
+                'fan_mode_state_topic' => "$id/ac/fan/get",
+                'precision' => 0.5,
+                'max_temp' => $temperatureUnit === TemperatureUnit::celsius ? 32 : 89,
+                'min_temp' => $temperatureUnit === TemperatureUnit::celsius ? 16 : 61,
+                'temp_step' => 1,
+                'device' => [
+                    'identifiers' => [$id]
+                ]
+            ];
+
+            $this->client->publish("homeassistant/climate/$id/config", json_encode($haDiscoveryData));
         }
     }
 

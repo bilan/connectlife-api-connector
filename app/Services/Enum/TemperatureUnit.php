@@ -6,6 +6,6 @@ enum TemperatureUnit: string
 {
     use EnumFromName;
 
-    case CELSIUS = '0';
-    case FAHRENHEIT = '1';
+    case celsius = '0';
+    case fahrenheit = '1';
 }

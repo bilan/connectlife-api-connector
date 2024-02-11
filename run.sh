@@ -8,6 +8,10 @@ if ! [[ -v CONNECTLIFE_PASSWORD ]]; then
     export CONNECTLIFE_PASSWORD=$(bashio::config 'connectlife_password')
 fi
 
+if ! [[ -v TEMPERATURE_UNIT ]]; then
+    export TEMPERATURE_UNIT=$(bashio::config 'temperature_unit')
+fi
+
 if ! [[ -v LOG_LEVEL ]]; then
     export LOG_LEVEL=$(bashio::config 'log_level')
 fi
