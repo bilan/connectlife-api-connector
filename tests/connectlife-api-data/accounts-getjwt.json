@@ -1,0 +1,9 @@
+{
+    "callId": "X",
+    "errorCode": 0,
+    "apiVersion": 2,
+    "statusCode": 200,
+    "statusReason": "OK",
+    "time": "2024-02-14T16:05:53.778Z",
+    "id_token": "X.X.X-X-X-X-X"
+}

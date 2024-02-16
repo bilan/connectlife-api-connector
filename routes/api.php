@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,3 +18,4 @@ Route::get('/test', [Controller::class, 'test']);
 Route::get('/devices-list', [Controller::class, 'devices']);
 Route::get('/devices/{deviceId?}', [Controller::class, 'status']);
 Route::post('/devices/{deviceId?}', [Controller::class, 'updateDevice']);
+Route::get('/devices/{deviceId}/metadata', [Controller::class, 'deviceMetadata']);

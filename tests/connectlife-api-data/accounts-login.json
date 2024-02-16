@@ -1,0 +1,41 @@
+{
+    "callId": "ID",
+    "errorCode": 0,
+    "apiVersion": 2,
+    "statusCode": 200,
+    "statusReason": "OK",
+    "time": "2024-02-14T15:48:35.621Z",
+    "registeredTimestamp": 1699919278,
+    "UID": "UID",
+    "UIDSignature": "3ER/ZFTzA30VyPjZAHlT3Ji8Ryk=",
+    "signatureTimestamp": "1707925715",
+    "created": "2023-11-13T23:47:58.251Z",
+    "createdTimestamp": 1699919278,
+    "isActive": true,
+    "isRegistered": true,
+    "isVerified": true,
+    "lastLogin": "2024-02-14T15:48:35.566Z",
+    "lastLoginTimestamp": 1707925715,
+    "lastUpdated": "2024-01-25T04:59:23.598Z",
+    "lastUpdatedTimestamp": 1706158763598,
+    "loginProvider": "site",
+    "oldestDataUpdated": "2023-11-13T23:47:58.251Z",
+    "oldestDataUpdatedTimestamp": 1699919278251,
+    "profile": {
+        "firstName": "firstName",
+        "lastName": "lastName",
+        "city": "N/A",
+        "country": "DE",
+        "email": "email@example.com",
+        "zip": "N/A"
+    },
+    "registered": "2023-11-13T23:47:58.251Z",
+    "socialProviders": "site",
+    "verified": "2023-11-13T23:47:58.251Z",
+    "verifiedTimestamp": 1699919278251,
+    "newUser": false,
+    "sessionInfo": {
+        "cookieName": "gac_4_X-_A",
+        "cookieValue": "st2.X.sc3"
+    }
+}

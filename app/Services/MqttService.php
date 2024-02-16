@@ -2,59 +2,36 @@
 
 namespace App\Services;
 
-use App\Services\Enum\FanSpeed;
-use App\Services\Enum\Mode;
-use App\Services\Enum\TemperatureUnit;
 use Illuminate\Support\Facades\Log;
 use PhpMqtt\Client\Contracts\MqttClient;
 
 class MqttService
 {
+    /** @var array<AcDevice> */
+    private array $acDevices;
+
     public function __construct(
         private MqttClient            $client,
         private ConnectlifeApiService $connectlifeApiService
     )
     {
+        foreach ($this->connectlifeApiService->getOnlineAcDevices() as $device) {
+            $this->acDevices[$device->id] = $device;
+        }
     }
 
     public function setupHaDiscovery()
     {
-        $temperatureUnit = TemperatureUnit::fromName(env('TEMPERATURE_UNIT', 'celsius'));
+        foreach ($this->acDevices as $device) {
+            /** @var AcDevice $device */
+            $haData = $device->toHomeAssistantDiscoveryArray();
 
-        foreach ($this->connectlifeApiService->devices() as $device) {
-            $id = $device['id'];
-            Log::info("Publishing discovery msg for device: $id");
+            Log::info("Publishing discovery msg for device: $device->id", [$haData]);
 
-            if ($device['type'] !== 'AirConditioner') {
-                Log::info("Skipping non AC device: $id");
-                continue;
-            }
-
-            $haDiscoveryData = [
-                'name' => $device['name'] ?? $id,
-                'unique_id' => $id,
-                'modes' => ["fan_only", "heat", "cool", "dry", "auto", "off"],
-                'fan_modes' => ["Auto", "SuperLow", "Low", "Medium", "High", "SuperHigh"],
-                'payload_on' => '1',
-                'payload_off' => '0',
-                'power_command_topic' => "$id/ac/power/set",
-                'mode_command_topic' => "$id/ac/mode/set",
-                'mode_state_topic' => "$id/ac/mode/get",
-                'temperature_command_topic' => "$id/ac/temperature/set",
-                'temperature_state_topic' => "$id/ac/temperature/get",
-                'current_temperature_topic' => "$id/ac/current-temperature/get",
-                'fan_mode_command_topic' => "$id/ac/fan/set",
-                'fan_mode_state_topic' => "$id/ac/fan/get",
-                'precision' => 0.5,
-                'max_temp' => $temperatureUnit === TemperatureUnit::celsius ? 32 : 89,
-                'min_temp' => $temperatureUnit === TemperatureUnit::celsius ? 16 : 61,
-                'temp_step' => 1,
-                'device' => [
-                    'identifiers' => [$id]
-                ]
-            ];
-
-            $this->client->publish("homeassistant/climate/$id/config", json_encode($haDiscoveryData));
+            $this->client->publish(
+                "homeassistant/climate/$device->id/config",
+                json_encode($haData)
+            );
         }
     }
 
@@ -92,61 +69,39 @@ class MqttService
     private function reactToMessageOnTopic(string $topic, string $message): void
     {
         $topic = explode('/', $topic);
-        $deviceId = $topic[0];
+        $acDevice = $this->getAcDevice($topic[0]);
         $case = $topic[2];
 
         match ($case) {
-            'power' => $this->updateDevicePower($deviceId, (bool)$message),
-            'mode' => $this->updateDeviceMode($deviceId, Mode::fromName($message)),
-            'temperature' => $this->updateDeviceTemperature($deviceId, (int)$message),
-            'fan' => $this->updateDeviceFan($deviceId, FanSpeed::fromName($message)),
+            'power' => $message === '1' ?: $acDevice->mode = 'off',
+            'mode' => $acDevice->mode = $message,
+            'temperature' => $acDevice->temperature = (int)$message,
+            'fan' => $acDevice->fanSpeed = $message,
         };
+
+        $this->updateAcDevice($acDevice);
     }
 
-    public function updateDeviceMode(string $deviceId, Mode $mode): void
+    private function getAcDevice(string $deviceId): AcDevice
     {
-        if ($mode === Mode::off) {
-            $this->updateDevicePower($deviceId, false);
-            return;
-        }
-
-        $this->connectlifeApiService->updateDevice($deviceId, [
-            'Mode' => $mode->value,
-            'Power' => "1"
-        ]);
+        return $this->acDevices[$deviceId];
     }
 
-    public function updateDevicePower(string $deviceId, bool $powerOn): void
+    public function updateAcDevice(AcDevice $acDevice)
     {
-        $this->connectlifeApiService->updateDevice($deviceId, [
-            'Power' => $powerOn ? '1' : '0'
-        ]);
-    }
-
-    public function updateDeviceTemperature(string $deviceId, int $temp): void
-    {
-        $this->connectlifeApiService->updateDevice($deviceId, [
-            'SetTemperature' => (string)$temp
-        ]);
-    }
-
-    public function updateDeviceFan(string $deviceId, FanSpeed $fanSpeed): void
-    {
-        $this->connectlifeApiService->updateDevice($deviceId, [
-            'FanSpeed' => $fanSpeed->value
-        ]);
+        $this->connectlifeApiService->updateDevice($acDevice->id, $acDevice->toConnectLifeApiPropertiesArray());
     }
 
     public function updateDevicesState()
     {
-        foreach ($this->connectlifeApiService->status() as $deviceStatus) {
-            $device = AcDevice::fromConnectLifeApiResponse($deviceStatus);
+        foreach ($this->connectlifeApiService->getOnlineAcDevices() as $device) {
+            Log::info("Updating device state", [$device->id]);
 
-            Log::info("Updating device state", [$deviceStatus, $device->mode->name]);
+            $this->acDevices[$device->id] = $device;
 
-            $this->client->publish("$device->id/ac/mode/get", $device->mode->name);
+            $this->client->publish("$device->id/ac/mode/get", $device->mode);
             $this->client->publish("$device->id/ac/temperature/get", $device->temperature);
-            $this->client->publish("$device->id/ac/fan/get", $device->fanSpeed->name);
+            $this->client->publish("$device->id/ac/fan/get", $device->fanSpeed);
             $this->client->publish("$device->id/ac/current-temperature/get", $device->currentTemperature);
         }
     }

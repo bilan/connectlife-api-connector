@@ -1,0 +1,16 @@
+[
+    {
+        "properties": {
+            "Power": "0",
+            "TemperatureUnit": "0",
+            "SetTemperature": "32",
+            "CurrentTemperature": "21",
+            "Mode": "1",
+            "FanSpeed": "0"
+        },
+        "id": "X-X",
+        "name": "Klimatyzator",
+        "type": "AirConditioner",
+        "status": "Online"
+    }
+]

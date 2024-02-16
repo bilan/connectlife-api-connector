@@ -11,23 +11,27 @@
 ![armv7-shield]
 ![i386-shield]
 
-The app uses [Connectlife API](https://api.connectlife.io/swagger/index.html)
-to control AC devices. It integrates with Home Assistant through
-[MQTT](https://www.home-assistant.io/integrations/climate.mqtt/)
-using [discovery feature](https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery).
+The add-on utilizes the [Connectlife API](https://api.connectlife.io/swagger/index.html) to control AC devices and 
+integrates seamlessly with Home Assistant through
+[MQTT](https://www.home-assistant.io/integrations/climate.mqtt/), leveraging its
+[discovery feature](https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery).
 
-Pull requests, bug reports and feature requests are welcomed. You can do it in the
+I welcome pull requests, bug reports, and feature requests. Please feel free to submit them in the
 [issues section](https://github.com/Bilan/connectlife-api-connector/issues).
 
 ## Install in Home Assistant with Supervisor
 
 [![ha_badge](https://img.shields.io/badge/Home%20Assistant-Add%20On-blue.svg)](https://www.home-assistant.io/)
 
-1. In Supervisor go to the Add-on Store.
-2. In the overflow menu click "Repositories".
-3. Add `https://github.com/bilan/home-assistant-addons/`.
-4. Wait for Add-on to show up or click reload in the same overflow menu.
-5. Install, configure, enjoy.
+1. Make sure your Connectlife appliances are online.
+2. In Supervisor, navidate to the Add-on Store.
+3. From the overflow menu, select "Repositories".
+4. Add `https://github.com/bilan/home-assistant-addons/`.
+5. Wait for Add-on to appear or click "Reload" in the same overflow menu.
+6. Install / build thhe add-on.
+7. Turn on the add-on watchdog - Connectlife API is not stable and sometimes times out.
+8. In the Configuration section, fill in the necessary fields. If you leave the fields blank,
+the add-on will attempt to fetch MQTT credentials from the Supervisor API.
 
 ## Run as independent docker container without HA/Supervisor
 
@@ -75,6 +79,13 @@ docker run -it \
 -e MQTT_SSL=false \
 ha-connectlife-addon /bin/ash -c 'php artisan app:mqtt-loop'
 ```
+
+## API endpoints
+
+- `GET /api/devices-list`
+- `GET /api/devices/`
+- `GET /api/devices/{DEVICE_ID}`
+- `POST /api/devices/{DEVICE_ID}` with example JSON data `{"Power":"1","TemperatureUnit":"0","SetTemperature":"31","Mode":"1","FanSpeed":"0"}`
 
 ## Useful links
 

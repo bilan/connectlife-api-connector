@@ -1,0 +1,110 @@
+[
+    {
+        "id": "X-X",
+        "supportsSettingPropertiesInSequence": false,
+        "propertyMetadata": [
+            {
+                "key": "CurrentTemperature",
+                "description": "Current Temperature",
+                "readWriteMode": "Read",
+                "type": "Temperature",
+                "minValue": "0",
+                "maxValue": "99",
+                "step": "1",
+                "minValueCelsius": "0",
+                "maxValueCelsius": "37",
+                "minValueFahrenheit": "0",
+                "maxValueFahrenheit": "99",
+                "unitPropertyKey": "TemperatureUnit"
+            },
+            {
+                "key": "FanSpeed",
+                "description": "Fan Speed",
+                "readWriteMode": "ReadWrite",
+                "type": "Enum",
+                "enumValues": {
+                    "0": {
+                        "key": "Auto",
+                        "label": "Auto"
+                    },
+                    "2": {
+                        "key": "Low",
+                        "label": "Low"
+                    },
+                    "3": {
+                        "key": "Medium",
+                        "label": "Medium"
+                    },
+                    "4": {
+                        "key": "High",
+                        "label": "High"
+                    }
+                }
+            },
+            {
+                "key": "Mode",
+                "description": "Mode",
+                "readWriteMode": "ReadWrite",
+                "type": "Enum",
+                "enumValues": {
+                    "0": {
+                        "key": "Fan only",
+                        "label": "Fan only"
+                    },
+                    "1": {
+                        "key": "Heat",
+                        "label": "Heat"
+                    },
+                    "2": {
+                        "key": "Cool",
+                        "label": "Cool"
+                    },
+                    "3": {
+                        "key": "Dry",
+                        "label": "Dry"
+                    },
+                    "4": {
+                        "key": "Auto",
+                        "label": "Auto"
+                    }
+                }
+            },
+            {
+                "key": "Power",
+                "description": "Power",
+                "readWriteMode": "ReadWrite",
+                "type": "Boolean"
+            },
+            {
+                "key": "SetTemperature",
+                "description": "Set Temperature",
+                "readWriteMode": "ReadWrite",
+                "type": "Temperature",
+                "minValue": "16",
+                "maxValue": "90",
+                "step": "1",
+                "minValueCelsius": "16",
+                "maxValueCelsius": "32",
+                "minValueFahrenheit": "61",
+                "maxValueFahrenheit": "90",
+                "unitPropertyKey": "TemperatureUnit"
+            },
+            {
+                "key": "TemperatureUnit",
+                "description": "Temperature Unit",
+                "readWriteMode": "ReadWrite",
+                "type": "Enum",
+                "enumValues": {
+                    "0": {
+                        "key": "°C",
+                        "label": "Celsius degree"
+                    },
+                    "1": {
+                        "key": "°F",
+                        "label": "Fahrenheit degree"
+                    }
+                }
+            }
+        ]
+    }
+]
