@@ -1,6 +1,6 @@
 name: "Connectlife API proxy & MQTT Add-on"
 description: Integrates Connectlife AC devices with Home Assistant via MQTT and provides an HTTP API
-version: 2.0.0
+version: 2.1.0
 slug: connectlife-api-proxy-mqtt
 arch:
   - aarch64
@@ -21,7 +21,7 @@ options:
   mqtt_password: ""
   mqtt_port: 1883
   mqtt_ssl: false
-  devices_config: '{"009":{"t_work_mode":["fan only","heat","cool","dry","auto"],"t_fan_speed":{"0":"auto","5":"super low","6":"low","7":"medium","8":"high","9":"super high"},"t_swing_direction":["straight","right","both sides","swing","left"],"t_swing_angle":{"0":"swing","2":"bottom 1\/6 ","3":"bottom 2\/6","4":"bottom 3\/6","5":"top 4\/6","6":"top 5\/6","7":"top 6\/6"}}}'
+  devices_config: '{"117":{"t_work_mode":["fan only","heat","cool","dry","auto"],"t_fan_speed":{"0":"auto","5":"super low","6":"low","7":"medium","8":"high","9":"super high"},"t_swing_direction":["straight","right","both sides","swing","left"],"t_swing_angle":{"0":"swing","2":"bottom 1\/6 ","3":"bottom 2\/6","4":"bottom 3\/6","5":"top 4\/6","6":"top 5\/6","7":"top 6\/6"}}}'
   beeping: false
 schema:
   connectlife_login: str

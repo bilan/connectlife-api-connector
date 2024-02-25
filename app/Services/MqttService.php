@@ -49,7 +49,7 @@ class MqttService
 
     public function setupDeviceSubscribes(string $id): void
     {
-        $options = ['mode', 'temperature', 'fan', 'swing'];
+        $options = ['mode', 'temperature', 'fan', 'swing', 'power'];
 
         foreach ($options as $option) {
             $topic = "$id/ac/$option/set";

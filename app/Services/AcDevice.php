@@ -21,7 +21,7 @@ class AcDevice
     public array $fanSpeedOptions;
     public array $swingOptions;
 
-    public function __construct(array $connectLifeAcDeviceStatus, array $connectLifeAcDeviceMetadata)
+    public function __construct(array $connectLifeAcDeviceStatus)
     {
         $this->id = $connectLifeAcDeviceStatus['puid'];
         $this->name = $connectLifeAcDeviceStatus['deviceNickName'];
@@ -29,15 +29,17 @@ class AcDevice
         $this->temperature = (int)$connectLifeAcDeviceStatus['statusList']['t_temp'];
         $this->currentTemperature = (int)$connectLifeAcDeviceStatus['statusList']['f_temp_in'];
 
-        $this->modeOptions = $this->extractMetadata($connectLifeAcDeviceMetadata, 't_work_mode');
-        $this->fanSpeedOptions = $this->extractMetadata($connectLifeAcDeviceMetadata, 't_fan_speed');
-        $this->swingOptions = $this->extractSwingModes($connectLifeAcDeviceMetadata);
+        $deviceConfiguration = $this->getDeviceConfiguration($connectLifeAcDeviceStatus['deviceFeatureCode']);
+
+        $this->modeOptions = $this->extractMetadata($deviceConfiguration, 't_work_mode');
+        $this->fanSpeedOptions = $this->extractMetadata($deviceConfiguration, 't_fan_speed');
+        $this->swingOptions = $this->extractSwingModes($deviceConfiguration);
         $this->fanSpeed = array_search($connectLifeAcDeviceStatus['statusList']['t_fan_speed'], $this->fanSpeedOptions);
 
         foreach ($this->swingOptions as $k => $v) {
             if (
-                $v['t_swing_direction'] === $connectLifeAcDeviceStatus['statusList']['t_swing_direction'] &&
-                $v['t_swing_angle'] === $connectLifeAcDeviceStatus['statusList']['t_swing_angle']
+                $v['t_swing_direction'] === ($connectLifeAcDeviceStatus['statusList']['t_swing_direction'] ?? null) &&
+                $v['t_swing_angle'] === ($connectLifeAcDeviceStatus['statusList']['t_swing_angle'] ?? null)
             ) {
                 $this->swing = $k;
             }
@@ -65,11 +67,15 @@ class AcDevice
         return $metadataOptions;
     }
 
-    private function extractSwingModes(array $connectLifeAcDeviceMetadata): array
+    private function extractSwingModes(array $deviceOptions): array
     {
+        if (!isset($deviceOptions['t_swing_direction']) || !isset($deviceOptions['t_swing_angle'])) {
+            return [];
+        }
+
         $swingOptions = [];
-        foreach ($connectLifeAcDeviceMetadata['t_swing_direction'] as $keyDirection => $valueDirection) {
-            foreach ($connectLifeAcDeviceMetadata['t_swing_angle'] as $keyAngle => $valueAngle) {
+        foreach ($deviceOptions['t_swing_direction'] as $keyDirection => $valueDirection) {
+            foreach ($deviceOptions['t_swing_angle'] as $keyAngle => $valueAngle) {
                 $swingOptions["$valueDirection - $valueAngle"] = [
                     't_swing_direction' => (string)$keyDirection,
                     't_swing_angle' => (string)$keyAngle
@@ -170,5 +176,20 @@ class AcDevice
         array_push($options, 'off');
 
         return $options;
+    }
+
+    private function getDeviceConfiguration(string $deviceTypeCode): array
+    {
+        $configuration = json_decode(env('DEVICES_CONFIG', '[]'), true);
+
+        if (isset($configuration[$deviceTypeCode])) {
+            return $configuration[$deviceTypeCode];
+        }
+
+        Log::debug('Device configuration not found, using default.');
+
+        $defaultConfiguration = '{"t_work_mode":["fan only","heat","cool","dry","auto"],"t_fan_speed":{"0":"auto","5":"super low","6":"low","7":"medium","8":"high","9":"super high"}}';
+
+        return json_decode($defaultConfiguration, true);
     }
 }

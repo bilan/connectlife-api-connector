@@ -137,7 +137,7 @@ class ConnectlifeApiService
                 Log::info("Skipping offline device: $id", $device);
                 continue;
             }
-            $acDevices[] = new AcDevice($device, $this->getDeviceConfiguration($device['deviceTypeCode']));
+            $acDevices[] = new AcDevice($device);
         }
 
         return $acDevices;
@@ -166,18 +166,5 @@ class ConnectlifeApiService
         return [];
     }
 
-    private function getDeviceConfiguration(string $deviceTypeCode): array
-    {
-        $configuration = json_decode(env('DEVICES_CONFIG', '[]'), true);
 
-        if (isset($configuration[$deviceTypeCode])) {
-            return $configuration[$deviceTypeCode];
-        }
-
-        Log::debug('Device configuration not found, using default.');
-
-        $defaultConfiguration = '{"t_work_mode":["fan only","heat","cool","dry","auto"],"t_fan_speed":{"0":"auto","5":"super low","6":"low","7":"medium","8":"high","9":"super high"},"t_swing_direction":["straight","right","both sides","swing","left"],"t_swing_angle":{"0":"swing","2":"bottom 1\/6 ","3":"bottom 2\/6","4":"bottom 3\/6","5":"top 4\/6","6":"top 5\/6","7":"top 6\/6"}}';
-
-        return json_decode($defaultConfiguration, true);
-    }
 }
