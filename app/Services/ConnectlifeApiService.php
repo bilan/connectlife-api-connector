@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Psr\Http\Message\ResponseInterface;
 
 class ConnectlifeApiService
@@ -15,43 +16,46 @@ class ConnectlifeApiService
         $this->httpClient = new Client([
             RequestOptions::TIMEOUT => 30,
             RequestOptions::DEBUG => (env('LOG_LEVEL') === 'debug'),
+            RequestOptions::HEADERS => ['User-Agent' => $this->getUserAgent()]
         ]);
+    }
+
+    private function getUserAgent()
+    {
+        preg_match('/(version:\s)(.*)/', Storage::get('config.yaml'), $match);
+        $version = $match[2] ?? 'unknown';
+
+        return 'connectlife-api-connector ' . $version;
     }
 
     public function updateDevice(string $deviceId, array $properties)
     {
-        $data = [[
-            'id' => $deviceId,
+        $data = [
+            'puid' => $deviceId,
             'properties' => $properties
-        ]];
+        ];
 
         Log::info('ConnectLife: updating device.', $data);
 
         $result = $this->decodeJsonResponse(
-            $this->httpClient->post('https://api.connectlife.io/api/v1/appliance', $this->getTokenHeaders() + [
-                    RequestOptions::JSON => $data
-                ])
-        )[0];
+            $this->httpClient->request('POST', 'https://connectlife.bapi.ovh/appliances', [
+                RequestOptions::HEADERS => ['X-Token' => $this->getAccessToken()],
+                RequestOptions::JSON => $data
+            ])
+        );
 
         Log::info('ConnectLife: updating device result.', $result);
 
         return $result;
     }
 
-
-
     private function decodeJsonResponse(ResponseInterface $response)
     {
         $data = $response->getBody()->getContents();
 
-        Log::debug('Response', [$data]);
+        Log::info('Response', [$data]);
 
         return json_decode($data, true);
-    }
-
-    private function getTokenHeaders(): array
-    {
-        return [RequestOptions::HEADERS => ['Authorization' => "Bearer {$this->getAccessToken()}"]];
     }
 
     private function getAccessToken(): string
@@ -121,63 +125,59 @@ class ConnectlifeApiService
         });
     }
 
+    /**
+     * @return array<AcDevice>
+     */
     public function getOnlineAcDevices(): array
     {
         $acDevices = [];
-        foreach ($this->status() as $device) {
-            $id = $device['id'];
-            if (!str_contains($device['type'], 'AirConditioner') || $device['status'] === 'Offline') {
-                Log::info("Skipping non AC or offline device: $id");
+        foreach ($this->devices() as $device) {
+            $id = $device['puid'];
+            if ($device['offlineState'] === 0) {
+                Log::info("Skipping offline device: $id", $device);
                 continue;
             }
-            $acDevices[] = new AcDevice($device, $this->deviceMetadata($id));
+            $acDevices[] = new AcDevice($device, $this->getDeviceConfiguration($device['deviceTypeCode']));
         }
 
         return $acDevices;
     }
 
-    public function status(?string $deviceId = null)
+    public function devices(?string $deviceId = null)
     {
-        $properties = [];
+        $devicesData = $this->decodeJsonResponse(
+            $this->httpClient->get('https://connectlife.bapi.ovh/appliances', [
+                RequestOptions::HEADERS => ['X-Token' => $this->getAccessToken()]
+            ])
+        );
 
-        foreach ($this->devices() as $device) {
-            if ($deviceId && $device['id'] !== $deviceId) {
-                continue;
-            }
+        Log::debug('Devices status.', $devicesData);
 
-            $properties[] = $this->decodeJsonResponse(
-                $this->httpClient->get(
-                    "https://api.connectlife.io/api/v1/appliance/${device['id']}",
-                    $this->getTokenHeaders()
-                )
-            )[0];
+        if (null === $deviceId) {
+            return $devicesData;
         }
 
-        Log::info('Devices status.', $properties);
+        foreach ($devicesData as $device) {
+            if ($device['deviceId'] === $deviceId) {
+                return $device;
+            }
+        }
 
-        return $deviceId ? $properties[0] : $properties;
+        return [];
     }
 
-    public function devices(): array
+    private function getDeviceConfiguration(string $deviceTypeCode): array
     {
-        return Cache::remember('devices', 60 * 60, function () {
-            Log::info('Getting devices.');
+        $configuration = json_decode(env('DEVICES_CONFIG', '[]'), true);
 
-            return $this->decodeJsonResponse(
-                $this->httpClient->get('https://api.connectlife.io/api/v1/appliance', $this->getTokenHeaders())
-            );
-        });
-    }
+        if (isset($configuration[$deviceTypeCode])) {
+            return $configuration[$deviceTypeCode];
+        }
 
-    public function deviceMetadata(string $deviceId): array
-    {
-        return Cache::rememberForever('metadata-'.$deviceId, function () use ($deviceId) {
-            return $this->decodeJsonResponse(
-                $this->httpClient->get(
-                    "https://api.connectlife.io/api/v1/appliance/metadata/$deviceId/en",
-                    $this->getTokenHeaders()
-                )
-            )[0];
-        });
+        Log::debug('Device configuration not found, using default.');
+
+        $defaultConfiguration = '{"t_work_mode":["fan only","heat","cool","dry","auto"],"t_fan_speed":{"0":"auto","5":"super low","6":"low","7":"medium","8":"high","9":"super high"},"t_swing_direction":["straight","right","both sides","swing","left"],"t_swing_angle":{"0":"swing","2":"bottom 1\/6 ","3":"bottom 2\/6","4":"bottom 3\/6","5":"top 4\/6","6":"top 5\/6","7":"top 6\/6"}}';
+
+        return json_decode($defaultConfiguration, true);
     }
 }

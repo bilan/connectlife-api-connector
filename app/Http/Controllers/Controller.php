@@ -15,22 +15,12 @@ class Controller extends BaseController
     public function updateDevice(string $deviceId, Request $request)
     {
         return response()->json(
-            $this->connectlifeApiService->updateDevice($deviceId, $request->all())
+            $this->connectlifeApiService->updateDevice($deviceId, $request->json()->all())
         );
     }
 
-    public function status(?string $deviceId = null)
+    public function devices(?string $deviceId = null)
     {
-        return response()->json($this->connectlifeApiService->status($deviceId));
-    }
-
-    public function devices()
-    {
-        return response()->json($this->connectlifeApiService->devices());
-    }
-
-    public function deviceMetadata(string $deviceId)
-    {
-        return response()->json($this->connectlifeApiService->deviceMetadata($deviceId));
+        return response()->json($this->connectlifeApiService->devices($deviceId));
     }
 }

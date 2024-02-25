@@ -22,6 +22,9 @@ else
     export DISABLE_HTTP_API=false
 fi
 
+[[ -v BEEPING ]] || export BEEPING=$(bashio::config "beeping")
+[[ -v DEVICES_CONFIG ]] || export DEVICES_CONFIG=$(bashio::config "devices_config")
+
 # mqtt config
 
 if ! [[ -v MQTT_HOST ]]; then

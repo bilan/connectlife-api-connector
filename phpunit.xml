@@ -5,9 +5,6 @@
          colors="true"
 >
     <testsuites>
-        <testsuite name="base">
-            <directory>tests</directory>
-        </testsuite>
         <testsuite name="Integration">
             <directory>tests/Integration</directory>
         </testsuite>
@@ -22,6 +19,7 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <env name="LOG_LEVEL" value="debug"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_DRIVER" value="array"/>
     </php>

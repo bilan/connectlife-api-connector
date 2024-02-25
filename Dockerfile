@@ -30,8 +30,7 @@ RUN apk add --no-cache \
 RUN mkdir /home/app
 COPY ./ /home/app
 WORKDIR /home/app
-RUN composer install --no-interaction --no-dev --no-suggest
-RUN cp .env.example .env && php artisan key:generate
+RUN composer install --no-interaction --no-dev
 RUN chmod a+x run.sh
 
 CMD [ "/home/app/run.sh" ]

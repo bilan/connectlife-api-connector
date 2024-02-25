@@ -1,0 +1,35 @@
+{
+    "009": {
+        "t_work_mode": {
+            "0": "fan only",
+            "1": "heat",
+            "2": "cool",
+            "3": "dry",
+            "4": "auto"
+        },
+        "t_fan_speed": {
+            "0": "auto",
+            "5": "super low",
+            "6": "low",
+            "7": "medium",
+            "8": "high",
+            "9": "super high"
+        },
+        "t_swing_direction": {
+            "0": "straight",
+            "1": "right",
+            "2": "both sides",
+            "3": "swing",
+            "4": "left"
+        },
+        "t_swing_angle": {
+            "0": "swing",
+            "2": "bottom 1\/6",
+            "3": "bottom 2\/6",
+            "4": "bottom 3\/6",
+            "5": "top 4\/6",
+            "6": "top 5\/6",
+            "7": "top 6\/6"
+        }
+    }
+}

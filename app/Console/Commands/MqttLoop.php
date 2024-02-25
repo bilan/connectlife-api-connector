@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\MqttService;
-use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\TransferException;
 use Illuminate\Console\Command;
 
 class MqttLoop extends Command
@@ -40,7 +40,7 @@ class MqttLoop extends Command
             if (microtime(true) - $lastUpdatedState >= 60) {
                 try {
                     $mqttService->updateDevicesState();
-                } catch (ConnectException $e) {
+                } catch (TransferException $e) {
                     $this->error($e->getMessage());
                 }
                 $lastUpdatedState = microtime(true);
