@@ -60,10 +60,10 @@ php artisan app:check-config
 
 if [ -z "$MQTT_HOST" ]; then
     echo "MQTT configuration not found, running HTTP API only."
-    php artisan serve --port=8000 --host=0.0.0.0
+    /usr/bin/supervisord -c /home/app/docker-files/supervisord/webapi.conf
 elif [ "$DISABLE_HTTP_API" = "true" ]; then
     echo "HTTP API disabled, running MQTT client only."
-    php artisan -vvv app:mqtt-loop
+    /usr/bin/supervisord -c /home/app/docker-files/supervisord/mqtt.conf
 else
-    /usr/bin/supervisord -c /home/app/docker-files/supervisord.conf
+    /usr/bin/supervisord -c /home/app/docker-files/supervisord/all.conf
 fi

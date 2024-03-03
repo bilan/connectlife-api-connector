@@ -6,7 +6,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Psr\Http\Message\ResponseInterface;
 
 class ConnectlifeApiService
@@ -22,7 +21,7 @@ class ConnectlifeApiService
 
     private function getUserAgent()
     {
-        preg_match('/(version:\s)(.*)/', Storage::get('config.yaml'), $match);
+        preg_match('/(version:\s)(.*)/', file_get_contents(base_path() . '/config.yaml'), $match);
         $version = $match[2] ?? 'unknown';
 
         return 'connectlife-api-connector ' . $version;
