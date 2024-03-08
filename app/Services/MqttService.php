@@ -30,7 +30,9 @@ class MqttService
 
             $this->client->publish(
                 "homeassistant/climate/$device->id/config",
-                json_encode($haData)
+                json_encode($haData),
+                0,
+                true
             );
         }
     }

@@ -11,10 +11,14 @@
 ![armv7-shield]
 ![i386-shield]
 
-The add-on utilizes the [Connectlife API](https://api.connectlife.io/swagger/index.html) to control AC devices and 
+The add-on utilizes the API acquired through reverse engineering from the 
+[Connectlife mobile app](https://en.connectlife.io)
+to control AC devices and 
 integrates seamlessly with Home Assistant through
 [MQTT](https://www.home-assistant.io/integrations/climate.mqtt/), leveraging its
 [discovery feature](https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery).
+
+The reason for the add-on was the lack of official support for device integration.
 
 I welcome pull requests, bug reports, and feature requests. Please feel free to submit them in the
 [issues section](https://github.com/Bilan/connectlife-api-connector/issues).
