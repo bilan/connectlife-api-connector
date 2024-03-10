@@ -136,13 +136,18 @@ class ConnectlifeApiService
                 Log::info("Skipping offline device: $id", $device);
                 continue;
             }
+
+            if ($device['deviceTypeCode'] !== '009') {
+                Log::info("Skipping device with unknown type code: $id", $device);
+                continue;
+            }
             $acDevices[] = new AcDevice($device);
         }
 
         return $acDevices;
     }
 
-    public function devices(?string $deviceId = null)
+    public function devices(?string $deviceId = null): array
     {
         $devicesData = $this->decodeJsonResponse(
             $this->httpClient->get('https://connectlife.bapi.ovh/appliances', [
@@ -164,6 +169,4 @@ class ConnectlifeApiService
 
         return [];
     }
-
-
 }

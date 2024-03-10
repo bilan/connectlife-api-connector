@@ -2,7 +2,10 @@
 
 namespace Tests\Integration;
 
+use App\Services\ConnectlifeApiService;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\File;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class ConnectlifeApiTest extends TestCase
@@ -36,5 +39,35 @@ class ConnectlifeApiTest extends TestCase
                 'errorCode',
                 'errorDesc'
             ]);
+    }
+
+    public function test_getting_non_ac_device()
+    {
+        $nonAcDevice = File::json(base_path("/tests/hijuconn-api-data/device-status-non-ac.json"));
+
+        /** @var ConnectlifeApiService $connectlifeApiService */
+        $connectlifeApiService = $this->partialMock(
+            ConnectlifeApiService::class,
+            function (MockInterface $mock) use ($nonAcDevice) {
+                $mock->shouldReceive('devices')->once()->andReturn($nonAcDevice);
+            }
+        );
+
+        $this->assertEmpty($connectlifeApiService->getOnlineAcDevices());
+    }
+
+    public function test_getting_ac_device()
+    {
+        $nonAcDevice = File::json(base_path("/tests/hijuconn-api-data/device-status-117.json"));
+
+        /** @var ConnectlifeApiService $connectlifeApiService */
+        $connectlifeApiService = $this->partialMock(
+            ConnectlifeApiService::class,
+            function (MockInterface $mock) use ($nonAcDevice) {
+                $mock->shouldReceive('devices')->once()->andReturn($nonAcDevice);
+            }
+        );
+
+        $this->assertNotEmpty($connectlifeApiService->getOnlineAcDevices());
     }
 }

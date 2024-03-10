@@ -1,0 +1,23 @@
+[
+    {
+        "wifiId": "X",
+        "deviceId": "X",
+        "puid": "puX",
+        "deviceNickName": "Klimatyzator ",
+        "deviceFeatureCode": "117",
+        "deviceFeatureName": "117AI普通风风向跟随八字送风冷暖节能有电功率",
+        "deviceTypeCode": "010",
+        "deviceTypeName": "",
+        "bindTime": 1697478568516,
+        "role": 1,
+        "roomId": 2985523,
+        "roomName": "salon",
+        "statusList": {
+            "t_sleep": "0"
+        },
+        "useTime": 0,
+        "offlineState": 1,
+        "seq": 0,
+        "createTime": 0
+    }
+]
