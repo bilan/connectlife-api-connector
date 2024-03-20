@@ -8,7 +8,7 @@ use PhpMqtt\Client\Contracts\MqttClient;
 class MqttService
 {
     /** @var array<AcDevice> */
-    private array $acDevices;
+    private array $acDevices = [];
 
     public function __construct(
         private MqttClient            $client,

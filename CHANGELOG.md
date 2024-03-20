@@ -5,13 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.1.3] - 2023-03-10
+## [2.1.4] - 2024-03-20
+
+### Added
+
+- Support for deviceTypeCode 006 (Portable air conditioner)
+
+## [2.1.3] - 2024-03-10
 
 ### Fixed
 
 - Non-AC devices from the Connectlife app were causing crashes.
 
-## [2.1.2] - 2023-03-08
+## [2.1.2] - 2024-03-08
 
 ### Changed
 
@@ -21,14 +27,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Retain flag should be set for MQTT discovery messages.
 
-## [2.1.1] - 2023-03-03
+## [2.1.1] - 2024-03-03
 
 ### Fixed
 
 - Crash if MQTT server not available.
 - Wrong config.yaml path for version reading.
 
-## [2.1.0] - 2023-02-25
+## [2.1.0] - 2024-02-25
 
 ### Fixed
 
@@ -36,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - "power" on/off command.
 - Using "deviceFeatureCode" instead of "deviceFeatureCode" to differentiate AC devices model.
 
-## [2.0.0] - 2023-02-24
+## [2.0.0] - 2024-02-24
 
 ### Added
 
@@ -52,4 +58,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Some HTTP API endpoints.
 
-## [1.1.0] - 2023-02-16
+## [1.1.0] - 2024-02-16
