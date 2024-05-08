@@ -80,7 +80,7 @@ class ConnectlifeApiService
             $token = $response['sessionInfo']['cookieValue'] ?? null;
 
             if (!$token) {
-                throw new \Exception('Cannot login to Connectlife. Response: ' . json_encode($response->body()));
+                throw new \Exception('Cannot login to Connectlife. Response: ' . json_encode($response));
             }
 
             $uid = $response['UID'];
