@@ -1,6 +1,6 @@
 name: "Connectlife API proxy & MQTT Add-on"
 description: Integrates Connectlife AC devices with Home Assistant via MQTT and provides an HTTP API
-version: 2.1.5
+version: 2.1.6
 slug: connectlife-api-proxy-mqtt
 arch:
   - aarch64
