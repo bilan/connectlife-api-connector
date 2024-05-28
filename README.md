@@ -41,7 +41,7 @@ the add-on will attempt to fetch MQTT credentials from the Supervisor API.
 
 #### Build image
 ```bash
-docker build . --build-arg='BUILD_FROM=alpine:3.19' -t ha-connectlife-addon
+docker build . --build-arg='BUILD_FROM=alpine:3.20' -t ha-connectlife-addon
 ```
 
 #### Run HTTP API and MQTT client both
