@@ -1,6 +1,6 @@
 name: "Connectlife API proxy & MQTT Add-on"
 description: Integrates Connectlife AC devices with Home Assistant via MQTT and provides an HTTP API
-version: 2.1.6
+version: 2.1.11
 slug: connectlife-api-proxy-mqtt
 arch:
   - aarch64
@@ -13,8 +13,10 @@ ports:
 options:
   connectlife_login: ""
   connectlife_password: ""
+  beeping: false
   temperature_unit: celsius
   log_level: info
+  log_level_app: info
   disable_http_api: true
   mqtt_host: ""
   mqtt_user: ""
@@ -22,12 +24,13 @@ options:
   mqtt_port: 1883
   mqtt_ssl: false
   devices_config: '{"117":{"t_work_mode":["fan only","heat","cool","dry","auto"],"t_fan_speed":{"0":"auto","5":"super low","6":"low","7":"medium","8":"high","9":"super high"},"t_swing_direction":["straight","right","both sides","swing","left"],"t_swing_angle":{"0":"swing","2":"bottom 1\/6 ","3":"bottom 2\/6","4":"bottom 3\/6","5":"top 4\/6","6":"top 5\/6","7":"top 6\/6"}}}'
-  beeping: false
 schema:
   connectlife_login: str
   connectlife_password: password
+  beeping: bool
   temperature_unit: list(celsius|fahrenheit)
   log_level: list(emergency|alert|critical|error|warning|notice|info|debug)
+  log_level_app: list(emergency|alert|critical|error|warning|notice|info|debug)
   disable_http_api: bool
   mqtt_host: str?
   mqtt_user: str?
@@ -35,7 +38,6 @@ schema:
   mqtt_port: int?
   mqtt_ssl: bool?
   devices_config: str?
-  beeping: bool
 startup: services
 init: false
 services: ["mqtt:need"]
