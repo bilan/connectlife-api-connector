@@ -6,25 +6,21 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Psr\Http\Message\ResponseInterface;
+use Carbon\Carbon;
 
 class ConnectlifeApiService
 {
+    private const BASE_URL = 'https://clife-eu-gateway.hijuconn.com';
+
     public function __construct(private Client $httpClient)
     {
         $this->httpClient = new Client([
             RequestOptions::TIMEOUT => 30,
             RequestOptions::DEBUG => (env('LOG_LEVEL') === 'debug'),
-            RequestOptions::HEADERS => ['User-Agent' => $this->getUserAgent()]
+            RequestOptions::HEADERS => ['User-Agent' => 'Runner/2.0.6 (iPhone; iOS 17.2.1; Scale/3.00)']
         ]);
-    }
-
-    private function getUserAgent()
-    {
-        preg_match('/(version:\s)(.*)/', file_get_contents(base_path() . '/config.yaml'), $match);
-        $version = $match[2] ?? 'unknown';
-
-        return 'connectlife-api-connector ' . $version;
     }
 
     public function updateDevice(string $deviceId, array $properties)
@@ -36,13 +32,14 @@ class ConnectlifeApiService
 
         Log::info('ConnectLife: updating device.', $data);
 
-        $result = $this->decodeJsonResponse(
-            $this->httpClient->request('POST', 'https://connectlife.bapi.ovh/appliances', [
-                RequestOptions::HEADERS => ['X-Token' => $this->getAccessToken()],
-                RequestOptions::JSON => $data
-            ])
-        );
+        $requestData = $this->getCommonRequestData() + $data + ['accessToken' => $this->getAccessToken()];
 
+        $result = $this->decodeJsonResponse(
+            $this->httpClient->request('POST', self::BASE_URL . '/device/pu/property/set', [
+                RequestOptions::JSON => $requestData + ['sign' => $this->getSignature($requestData)]
+            ])
+        )['response'];
+        
         Log::info('ConnectLife: updating device result.', $result);
 
         return $result;
@@ -146,14 +143,9 @@ class ConnectlifeApiService
 
         return $acDevices;
     }
-
     public function devices(?string $deviceId = null): array
     {
-        $devicesData = $this->decodeJsonResponse(
-            $this->httpClient->get('https://connectlife.bapi.ovh/appliances', [
-                RequestOptions::HEADERS => ['X-Token' => $this->getAccessToken()]
-            ])
-        );
+        $devicesData = $this->devicesData($this->getAccessToken());
 
         Log::debug('Devices status.', $devicesData);
 
@@ -168,5 +160,85 @@ class ConnectlifeApiService
         }
 
         return [];
+    }
+
+    public function devicesData(string $token): array
+    {
+        return Cache::remember($token, 5, function () use ($token) {
+            $requestData = $this->getCommonRequestData() + ['accessToken' => $token];
+
+            $devices = $this->decodeJsonResponse(
+                $this->httpClient->get(self::BASE_URL . '/clife-svc/pu/get_device_status_list', [
+                    RequestOptions::QUERY => $requestData + ['sign' => $this->getSignature($requestData)]
+                ])
+            )['response']['deviceList'];
+
+            foreach ($devices as $k => $v) {
+                try {
+                    $energy = $this->deviceEnergy($v['puid'], $token);
+                    $devices[$k]['statusList']['daily_energy_kwh'] = $energy['resultData']['electricTotal'];
+                } catch (\Exception $e) {
+                    Log::debug('Unable to fetch device energy', [$e->getMessage()]);
+                }
+            }
+
+            return $devices;
+        });
+    }
+
+    public function deviceEnergy(string $deviceId, string $token)
+    {
+        return Cache::remember($deviceId, 60*10, function () use ($token, $deviceId) {
+            $today = Carbon::now()->toDateString();
+            $requestData = $this->getCommonRequestData() + [
+                    'accessToken' => $token,
+                    'puid' => $deviceId,
+                    'statType' => 'day',
+                    'dateEnd' => $today,
+                    'dateStart' => $today,
+                    'curve' => '1',
+                    'deviceType' => '009',
+                    'featureCode' => '117'
+                ];
+
+            return $this->decodeJsonResponse(
+                $this->httpClient->request('POST', self::BASE_URL . '/clife-svc/pu/air_duct_energy', [
+                    RequestOptions::JSON => $requestData + ['sign' => $this->getSignature($requestData)]
+                ])
+            )['response'];
+        });
+    }
+
+
+    private function getSignature(array $data): string
+    {
+        ksort($data);
+        $toHash = '';
+        foreach ($data as $k => $v) {
+            if (is_array($v)) {
+                $data[$k] = json_encode($v);
+            }
+            $toHash .= '&' . $k . '=' . $data[$k];
+        }
+
+        $toHash = substr($toHash, 1) . 'D9519A4B756946F081B7BB5B5E8D1197';
+        $toEncrypt = hash('sha256', $toHash, true);
+        openssl_public_encrypt($toEncrypt, $encrypted, Storage::get('pubkey.pem'));
+
+        return base64_encode($encrypted);
+    }
+
+    private function getCommonRequestData(): array
+    {
+        $timestamp = date_create()->format('Uv');
+        return [
+            'appId' => '47110565134383',
+            'appSecret' => 'yOzhz6junYno-nmULM3Wr7PU_dpSZN22ZdluvVWZ4uW5ZwwG8fIGCHTbrhcnU-iv',
+            "languageId" => "12",
+            "randStr" => md5($timestamp),
+            "timeStamp" => $timestamp,
+            "timezone" => "1.0",
+            "version" => "5.0"
+        ];
     }
 }
