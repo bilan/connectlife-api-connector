@@ -250,9 +250,6 @@ class AcDevice
             'modes' => $this->getHaModesSubset(),
             'fan_modes' => array_keys($this->fanSpeedOptions),
             'swing_modes' => array_keys($this->swingOptions),
-            'payload_on' => '1',
-            'payload_off' => '0',
-            'power_command_topic' => "$this->id/ac/power/set",
             'mode_command_topic' => "$this->id/ac/mode/set",
             'mode_state_topic' => "$this->id/ac/mode/get",
             'temperature_command_topic' => "$this->id/ac/temperature/set",
@@ -290,7 +287,7 @@ class AcDevice
 
         if (count($this->presetOptions) > 1) {
             $data += [
-                'preset_modes' => $this->presetOptions,
+                'preset_modes' => array_values(array_filter($this->presetOptions, fn($p) => $p !== 'none')),
                 'preset_mode_command_topic' => "$this->id/ac/preset/set",
                 'preset_mode_state_topic' => "$this->id/ac/preset/get",
             ];

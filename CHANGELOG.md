@@ -1,157 +1,70 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+Tutte le modifiche significative a questo progetto sono documentate in questo file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+Il formato si basa su [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+e il progetto segue il [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [2.3.17] - 2026-05-23
+
+### Risolto
+
+- **Compatibilità con Home Assistant 2025.5**: rimosso `'none'` da `preset_modes` nel payload MQTT climate discovery. HA 2025.5 ha stretto la validazione dello schema e rigetta i discovery che contengono `'none'` come preset mode (è un valore riservato per "nessun preset attivo"), facendo sparire silenziosamente le entità climate dopo l'upgrade
+- Rimossi `power_command_topic`, `payload_on`, `payload_off` deprecati dal discovery climate. Lo spegnimento è già gestito da `mode_command_topic` con la modalità `"off"`
+
+### Rimosso
+
+- Opzione di configurazione `temperature_unit`: era esportata come env var ma mai letta dal codice PHP. L'unità di temperatura viene letta direttamente dal device (`t_temp_type` nello `statusList`)
 
 ## [2.3.7] - 2026-04-17
 
-### Fixed
+### Risolto
 
-- Sync `t_fan_speed_s` (stepless fan speed) with `t_fan_speed` when sending fan commands
+- Sincronizzazione di `t_fan_speed_s` (fan speed stepless) con `t_fan_speed` nei comandi fan
 
 ## [2.3.6] - 2026-04-17
 
-### Fixed
+### Risolto
 
-- Temperature commands now correctly sent in dry mode (controls dehumidification intensity)
-- Only `fan_only` mode ignores temperature setpoint
+- Comandi temperatura ora inviati correttamente anche in modalità `dry` (controlla l'intensità di deumidificazione)
+- Solo `fan_only` ignora il setpoint di temperatura
 
 ## [2.3.5] - 2026-04-17
 
-### Added
+### Aggiunto
 
-- MQTT sensor discovery for power (`f_electricity`, W), voltage (`f_votage`, V) and daily energy (`daily_energy_kwh`, kWh)
-- Sensors auto-detected from device statusList and linked to the same HA device as the climate entity
+- Discovery MQTT di sensori per potenza istantanea (`f_electricity`, W), tensione (`f_votage`, V) ed energia giornaliera (`daily_energy_kwh`, kWh)
+- Sensori autorilevati dallo `statusList` del device e legati allo stesso dispositivo HA dell'entità climate
 
 ## [2.3.4] - 2026-04-17
 
-### Fixed
+### Risolto
 
-- Exponential backoff on Gigya API rate limit: 5 → 10 → 20 → 40 → 60 min between retries
-- Backoff counter resets on successful login
+- Backoff esponenziale sul rate limit Gigya: 5 → 10 → 20 → 40 → 60 min tra i retry
+- Il counter di backoff si resetta al primo login riuscito
 
 ## [2.3.3] - 2026-04-17
 
-### Fixed
+### Risolto
 
-- Stop retrying Gigya login every 60s when rate-limited (errorCode 403048): wait 5 minutes before retrying
+- Stop al retry del login Gigya ogni 60s in caso di rate limit (errorCode 403048): attesa di 5 minuti prima del retry successivo
 
 ## [2.3.2] - 2026-04-17
 
-### Added
+### Aggiunto
 
-- Preset modes: `eco`, `sleep`, `boost`, `silent` — auto-detected from device statusList (`t_eco`, `t_sleep`, `t_super`, `t_fan_mute`)
-- Vertical swing support via `t_up_down` — auto-detected from statusList when no explicit swing config provided
-- MQTT sensor topics for preset state published with `retain=true`
-- Late device discovery: devices that come online after startup are automatically subscribed and announced to HA
-- All MQTT state publishes now use `retain=true` so new subscribers get current state immediately
+- Preset modes: `eco`, `sleep`, `boost`, `silent` — autorilevati dallo `statusList` del device (`t_eco`, `t_sleep`, `t_super`, `t_fan_mute`)
+- Supporto swing verticale tramite `t_up_down` — autorilevato dallo statusList quando non è fornita una configurazione swing esplicita
+- Topic MQTT dei preset pubblicati con `retain=true`
+- Discovery tardivo: i device che vanno online dopo lo startup vengono automaticamente subscribed e annunciati a HA
+- Tutte le pubblicazioni MQTT di stato ora usano `retain=true` così i nuovi subscriber vedono subito lo stato corrente
 
-### Fixed
+### Risolto
 
-- **Command status mutex (errorCode 16)**: each MQTT command now sends only the changed property instead of the full device state (e.g. mode change sends only `t_power`+`t_work_mode`)
-- Power-on from off: sends `t_power=1` alone first, waits 3s, then sends the mode/property command — avoids mutex on device initialization
-- Startup resilience: container survives API failures at boot, devices loaded on next poll
-- Retry on mutex: automatic 2s retry if first command attempt gets errorCode 16
-- Persist Laravel cache to `/data` (HA persistent storage) so Gigya access token survives addon restarts
-- Broad exception handling in MQTT loop (`\Exception` instead of `TransferException` only)
-- Sync `t_fan_speed_s` with `t_fan_speed` on fan speed changes
-
-## [2.3.1] - 2026-03-29
-
-### Fixed
-
-- Handle missing deviceList in API response gracefully instead of crashing MQTT loop
-
-## [2.3.0] - 2026-03-29
-
-### Fixed
-
-- Preserve ECO mode (t_eco) state when changing temperature or other settings via MQTT
-
-## [2.2.0] - 2026-03-14
-
-### Changed
-
-- The app now uses an API obtained by reverse engineering an iPhone app.
-
-## [2.1.9] - 2024-05-28
-
-### Fixed
-
-- Logging
-
-## [2.1.7] - 2024-05-28
-
-### Fixed
-
-- Composer error
-
-## [2.1.6] - 2024-05-22
-
-### Added
-
-- Support for deviceTypeCode 008 (window unit AC)
-
-## [2.1.5] - 2024-05-08
-
-### Fixed
-
-- getAccessToken() exception message.
-- README examples.
-
-## [2.1.4] - 2024-03-20
-
-### Added
-
-- Support for deviceTypeCode 006 (Portable air conditioner)
-
-## [2.1.3] - 2024-03-10
-
-### Fixed
-
-- Non-AC devices from the Connectlife app were causing crashes.
-
-## [2.1.2] - 2024-03-08
-
-### Changed
-
-- README update.
-
-### Fixed
-
-- Retain flag should be set for MQTT discovery messages.
-
-## [2.1.1] - 2024-03-03
-
-### Fixed
-
-- Crash if MQTT server not available.
-- Wrong config.yaml path for version reading.
-
-## [2.1.0] - 2024-02-25
-
-### Fixed
-
-- Crash when swing is not supported.
-- "power" on/off command.
-- Using "deviceFeatureCode" instead of "deviceFeatureCode" to differentiate AC devices model.
-
-## [2.0.0] - 2024-02-24
-
-### Added
-
--   BEEPING env - option to silence buzzer
--   DEVICES_CONFIG env - stores configuration for your devices (modes, swing and fan options)
--   swing modes support
-
-### Changed
-
--   Due to the deactivation of the api.connectlife.io endpoints, I decompiled the Connectlife mobile app and based on this I prepared a new version.
-
-### Removed
-
--   Some HTTP API endpoints.
-
-## [1.1.0] - 2024-02-16
+- **Command status mutex (errorCode 16)**: ogni comando MQTT manda ora solo la proprietà modificata invece dello stato completo del device (es. cambio modalità manda solo `t_power`+`t_work_mode`)
+- Accensione da off: manda prima `t_power=1` da solo, attende 3s, poi invia il comando di modalità/proprietà — evita il mutex sull'inizializzazione del device
+- Robustezza allo startup: il container sopravvive a fallimenti dell'API al boot, i device vengono caricati al poll successivo
+- Retry su mutex: retry automatico dopo 2s se il primo tentativo restituisce errorCode 16
+- Cache Laravel persistita su `/data` (storage persistente HA) così l'access token Gigya sopravvive ai riavvii dell'addon
+- Gestione exception più ampia nel loop MQTT (`\Exception` invece del solo `TransferException`)
+- Sincronizzazione di `t_fan_speed_s` con `t_fan_speed` al cambio fan speed
